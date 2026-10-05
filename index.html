@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Cheat sheet interactivo de Git: simula las 4 áreas, visualiza ramas, HEAD, merge y rebase, y copia los comandos esenciales.">
+  <title>Git Cheat Sheet & Interactive Visualizer</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
+  <style>
+    :root {
+      --bg-main: #0f172a;
+      --bg-card: #1e293b;
+      --bg-card-hover: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-git: #f05032;
+      --accent-blue: #38bdf8;
+      --accent-green: #4ade80;
+      --accent-purple: #c084fc;
+      --accent-yellow: #facc15;
+      --accent-pink: #f472b6;
+      --border-color: #334155;
+      --code-bg: #090d16;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background-color: var(--bg-main); color: var(--text-main); line-height: 1.6; padding: 2rem 1rem; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    code { font-family: ui-monospace, monospace; }
+
+    header { text-align: center; margin-bottom: 2rem; }
+    header h1 { font-size: clamp(1.5rem, 5vw, 2.2rem); display: flex; align-items: center; justify-content: center; gap: 0.75rem; flex-wrap: wrap; }
+    header h1 span { color: var(--accent-git); }
+    header p { color: var(--text-muted); font-size: 1rem; margin-top: 0.5rem; }
+
+    /* Tabs Navigation */
+    .nav-tabs { display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 2rem; flex-wrap: wrap; }
+    .tab-btn {
+      background: var(--bg-card); color: var(--text-muted); border: 1px solid var(--border-color);
+      padding: 0.75rem 1.25rem; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
+    }
+    .tab-btn:hover { color: var(--text-main); background: var(--bg-card-hover); }
+    .tab-btn.active { background: var(--accent-git); color: #fff; border-color: var(--accent-git); }
+    .tab-btn:focus-visible, .sim-btn:focus-visible, .copy-btn:focus-visible { outline: 2px solid var(--accent-blue); outline-offset: 2px; }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* Cards & Containers */
+    .sim-card {
+      background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px;
+      padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+    .sim-card h2 { font-size: 1.4rem; color: var(--accent-blue); margin-bottom: 0.5rem; }
+    .sim-card .desc { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.25rem; }
+
+    /* Tab 1: Pipeline */
+    .pipeline { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 1rem; margin-bottom: 1.25rem; }
+    .stage {
+      background: rgba(15, 23, 42, 0.6); border: 2px dashed var(--border-color); border-radius: 8px;
+      padding: 1rem; min-height: 150px; display: flex; flex-direction: column; align-items: center;
+    }
+    .stage-title { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; margin-bottom: 0.75rem; text-align: center; }
+    .stage-working .stage-title { color: var(--accent-yellow); }
+    .stage-staging .stage-title { color: var(--accent-blue); }
+    .stage-local .stage-title { color: var(--accent-purple); }
+    .stage-remote .stage-title { color: var(--accent-green); }
+
+    .items-container { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; width: 100%; }
+    .badge { padding: 0.4rem 0.65rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; animation: popIn 0.25s ease-out; }
+    .badge-working { background: rgba(250, 204, 21, 0.15); color: var(--accent-yellow); border: 1px solid var(--accent-yellow); }
+    .badge-staging { background: rgba(56, 189, 248, 0.15); color: var(--accent-blue); border: 1px solid var(--accent-blue); }
+    .badge-local { background: rgba(192, 132, 252, 0.15); color: var(--accent-purple); border: 1px solid var(--accent-purple); }
+    .badge-remote { background: rgba(74, 222, 128, 0.15); color: var(--accent-green); border: 1px solid var(--accent-green); }
+
+    @keyframes popIn { 0% { transform: scale(0.6); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+    @media (prefers-reduced-motion: reduce) { .badge { animation: none; } * { transition: none !important; } }
+
+    .btn-group { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 1rem; }
+    .sim-btn {
+      background: var(--bg-card-hover); color: var(--text-main); border: 1px solid var(--border-color);
+      padding: 0.55rem 0.9rem; border-radius: 6px; font-family: ui-monospace, monospace; font-size: 0.85rem; cursor: pointer; transition: all 0.2s;
+    }
+    .sim-btn:hover { background: var(--accent-git); border-color: var(--accent-git); color: #fff; }
+    .sim-btn-accent { background: rgba(56, 189, 248, 0.15); border-color: var(--accent-blue); color: var(--accent-blue); }
+    .sim-btn-accent:hover { background: var(--accent-blue); color: #000; }
+    .sim-btn-reset { margin-left: auto; background: transparent; color: var(--text-muted); }
+    .sim-btn-reset:hover { background: #ef4444; border-color: #ef4444; color: #fff; }
+
+    .console-log {
+      background: var(--code-bg); border: 1px solid var(--border-color); border-radius: 6px;
+      padding: 0.75rem 1rem; font-family: ui-monospace, monospace; font-size: 0.85rem; color: var(--accent-green); min-height: 48px;
+      overflow-wrap: anywhere;
+    }
+
+    /* Tab 2: Graph Canvas */
+    .graph-container {
+      background: var(--code-bg); border: 1px solid var(--border-color); border-radius: 8px;
+      position: relative; overflow-x: auto; margin-bottom: 1.25rem; padding: 0.5rem;
+    }
+    .graph-svg { display: block; height: 220px; }
+    .graph-legend { display: flex; flex-wrap: wrap; gap: 1rem; font-size: 0.8rem; color: var(--text-muted); margin: -0.5rem 0 1rem; }
+    .graph-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 0.35rem; vertical-align: middle; }
+
+    /* Tab 3: Cheat Sheet Cards */
+    .search-box { margin-bottom: 1.5rem; }
+    .search-box input {
+      width: 100%; padding: 0.85rem 1.25rem; background: var(--bg-card); border: 1px solid var(--border-color);
+      border-radius: 8px; color: var(--text-main); font-size: 1rem; outline: none; transition: border-color 0.2s;
+    }
+    .search-box input:focus { border-color: var(--accent-blue); }
+    .no-results { display: none; color: var(--text-muted); text-align: center; padding: 2rem 0; }
+
+    .sections-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr)); gap: 1.25rem; }
+    .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; padding: 1.25rem; min-width: 0; }
+    .card-title { font-size: 1.1rem; font-weight: 600; color: var(--accent-blue); margin-bottom: 1rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--border-color); }
+
+    .cmd-group { margin-bottom: 1rem; }
+    .cmd-group:last-child { margin-bottom: 0; }
+    .cmd-header { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; background: var(--code-bg); padding: 0.45rem 0.65rem; border-radius: 6px 6px 0 0; border: 1px solid var(--border-color); border-bottom: none; }
+    .cmd-code { font-family: ui-monospace, monospace; color: var(--accent-green); font-weight: 600; font-size: 0.85rem; min-width: 0; overflow-wrap: anywhere; }
+    .copy-btn { flex-shrink: 0; background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.75rem; padding: 0.2rem 0.4rem; border-radius: 4px; }
+    .copy-btn:hover { background: var(--bg-card-hover); color: var(--text-main); }
+    .cmd-desc { background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border-color); padding: 0.5rem 0.65rem; border-radius: 0 0 6px 6px; font-size: 0.825rem; color: var(--text-muted); }
+
+    .tag { display: inline-block; padding: 0.1rem 0.35rem; border-radius: 4px; font-size: 0.65rem; font-weight: 700; margin-left: 0.4rem; text-transform: uppercase; }
+    .tag-essential { background: rgba(74, 222, 128, 0.2); color: var(--accent-green); }
+    .tag-warning { background: rgba(250, 204, 21, 0.2); color: var(--accent-yellow); }
+
+    footer { text-align: center; margin-top: 3rem; color: var(--text-muted); font-size: 0.85rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1><span>Git</span> Cheat Sheet & Visualizador</h1>
+    <p>Aprende, simula y domina el flujo de trabajo de Git sin esfuerzo</p>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <div class="nav-tabs" role="tablist">
+    <button type="button" class="tab-btn active" role="tab" id="btn-pipeline" aria-controls="tab-pipeline" aria-selected="true" onclick="switchTab(this, 'tab-pipeline')">1. Flujo de Trabajo (4 Áreas)</button>
+    <button type="button" class="tab-btn" role="tab" id="btn-graph" aria-controls="tab-graph" aria-selected="false" onclick="switchTab(this, 'tab-graph')">2. Ramas, HEAD, Merge & Rebase</button>
+    <button type="button" class="tab-btn" role="tab" id="btn-cheatsheet" aria-controls="tab-cheatsheet" aria-selected="false" onclick="switchTab(this, 'tab-cheatsheet')">3. Comandos & Cheat Sheet</button>
+  </div>
+
+  <!-- TAB 1: 4 STAGES PIPELINE -->
+  <div id="tab-pipeline" class="tab-content active" role="tabpanel" aria-labelledby="btn-pipeline">
+    <section class="sim-card">
+      <h2>Simulador de las 4 Áreas de Git</h2>
+      <p class="desc">Haz clic en los comandos para ver cómo los archivos viajan entre las fases de Git:</p>
+
+      <div class="pipeline">
+        <div class="stage stage-working">
+          <div class="stage-title">1. Directorio de Trabajo</div>
+          <div class="items-container" id="pipe-working"></div>
+        </div>
+        <div class="stage stage-staging">
+          <div class="stage-title">2. Staging Area</div>
+          <div class="items-container" id="pipe-staging"></div>
+        </div>
+        <div class="stage stage-local">
+          <div class="stage-title">3. Repositorio Local</div>
+          <div class="items-container" id="pipe-local"></div>
+        </div>
+        <div class="stage stage-remote">
+          <div class="stage-title">4. Repositorio Remoto</div>
+          <div class="items-container" id="pipe-remote"></div>
+        </div>
+      </div>
+
+      <div class="btn-group">
+        <button type="button" class="sim-btn" onclick="pipeEdit()">Modificar archivo</button>
+        <button type="button" class="sim-btn" onclick="pipeAdd()">git add .</button>
+        <button type="button" class="sim-btn" onclick="pipeCommit()">git commit -m "..."</button>
+        <button type="button" class="sim-btn" onclick="pipePush()">git push origin main</button>
+        <button type="button" class="sim-btn sim-btn-reset" onclick="pipeReset()">Reiniciar</button>
+      </div>
+
+      <div class="console-log" id="pipe-log" aria-live="polite">&gt; Haz clic en "Modificar archivo" para empezar la simulación.</div>
+    </section>
+  </div>
+
+  <!-- TAB 2: BRANCHING & COMMIT GRAPH -->
+  <div id="tab-graph" class="tab-content" role="tabpanel" aria-labelledby="btn-graph">
+    <section class="sim-card">
+      <h2>Visualizador Árbol de Commits & Ramas</h2>
+      <p class="desc">Observa la posición exacta de <strong>HEAD</strong>, la creación de ramas y cómo se fusionan o reestructuran los commits:</p>
+
+      <div class="graph-container" id="graphContainer">
+        <svg id="graphSvg" class="graph-svg" role="img" aria-label="Grafo de commits y ramas"></svg>
+      </div>
+      <div class="graph-legend">
+        <span><i style="background:#38bdf8"></i>Commit en main</span>
+        <span><i style="background:#c084fc"></i>Commit en feature</span>
+        <span><i style="background:transparent;border:2px dashed #64748b"></i>Commit abandonado tras un rebase</span>
+      </div>
+
+      <div class="btn-group">
+        <button type="button" class="sim-btn" onclick="graphCommit()">git commit</button>
+        <button type="button" class="sim-btn sim-btn-accent" onclick="graphNewBranch()">git switch -c feature</button>
+        <button type="button" class="sim-btn" onclick="graphToggleBranch()">git switch (main/feature)</button>
+        <button type="button" class="sim-btn" onclick="graphMerge()">git merge feature</button>
+        <button type="button" class="sim-btn" onclick="graphRebase()">git rebase main</button>
+        <button type="button" class="sim-btn sim-btn-reset" onclick="graphReset()">Reiniciar Árbol</button>
+      </div>
+
+      <div class="btn-group" style="margin-top: 0.5rem;">
+        <span style="font-size: 0.85rem; color: var(--text-muted); align-self: center;">Escenarios preconfigurados:</span>
+        <button type="button" class="sim-btn" onclick="loadScenarioFF()">Escenario Fast-Forward</button>
+        <button type="button" class="sim-btn" onclick="loadScenarioDivergent()">Escenario Divergente (3-Way / Rebase)</button>
+      </div>
+
+      <div class="console-log" id="graph-log" aria-live="polite" style="margin-top: 1rem;">&gt; Estado actual: En la rama "main". Haz un commit o crea una rama.</div>
+    </section>
+  </div>
+
+  <!-- TAB 3: CHEAT SHEET -->
+  <div id="tab-cheatsheet" class="tab-content" role="tabpanel" aria-labelledby="btn-cheatsheet">
+    <div class="search-box">
+      <input type="search" id="searchInput" aria-label="Buscar comando" placeholder="🔍 Buscar comando o concepto (ej. commit, rama, restore, stash)..." oninput="filterCommands()">
+    </div>
+
+    <div class="sections-grid" id="sectionsGrid">
+
+      <div class="card">
+        <div class="card-title">⚙️ Configuración Inicial</div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git config --global user.name "Tu Nombre"</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Establece tu nombre global de autor. <span class="tag tag-essential">Esencial</span></div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git config --global user.email "tu@email.com"</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Establece el email que aparecerá como autor de tus commits.</div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git init</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Inicializa un repositorio Git local.</div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git clone &lt;url&gt;</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Clona un repositorio remoto en tu máquina.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🔄 El Ciclo Diario</div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git status</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Muestra el estado de los archivos en tu directorio de trabajo. <span class="tag tag-essential">Esencial</span></div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git add .</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Prepara todos los archivos nuevos y modificados (del directorio actual) para el commit.</div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git commit -m "Mensaje explicativo"</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Guarda la foto del código en el historial local.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🌿 Ramas (Branches)</div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git branch</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Lista todas las ramas locales.</div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git switch -c &lt;nombre-rama&gt;</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Crea y se cambia a una nueva rama.</div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git switch &lt;nombre-rama&gt;</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Cambia a una rama existente.</div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git merge &lt;rama&gt;</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Fusiona la rama especificada con la rama activa.</div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git rebase main</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Reaplica los commits de la rama actual como commits nuevos sobre la punta de <code>main</code>. <span class="tag tag-warning">Reescribe historial</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">☁️ Sincronización Remota</div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git fetch</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Obtiene los cambios del remoto sin alterar tu código local.</div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git pull</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Descarga y fusiona los cambios remotos en tu rama actual.</div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git push -u origin &lt;rama&gt;</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Sube tus commits locales al servidor remoto.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">↩️ Deshacer y Guardar Temporalmente</div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git restore &lt;archivo&gt;</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Descarta los cambios no preparados (fuera del staging) de un archivo. <span class="tag tag-warning">Cuidado</span></div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git restore --staged &lt;archivo&gt;</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Saca un archivo del Staging Area sin perder cambios.</div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git stash</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Guarda temporalmente en un cajón tus cambios sin confirmar.</div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git stash pop</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Recupera los cambios guardados en el <code>stash</code>.</div>
+        </div>
+      </div>
+
+    </div>
+    <p class="no-results" id="noResults">No hay comandos que coincidan con tu búsqueda.</p>
+  </div>
+
+  <footer>
+    Git Interactive Cheat Sheet | Diseñado para hostearse en GitHub Pages
+  </footer>
+</div>
+
+<script>
+  // Tab Switching Logic
+  function switchTab(btn, tabId) {
+    document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    btn.setAttribute('aria-selected', 'true');
+    document.getElementById(tabId).classList.add('active');
+    if (tabId === 'tab-graph') renderGraph();
+  }
+
+  // --- TAB 1: PIPELINE SIMULATOR ---
+  let pWork = [], pStage = [], pLocal = [], pRemote = [], fileCounter = 0;
+
+  function renderPipe() {
+    renderBox('pipe-working', pWork, 'badge-working', '📄 ');
+    renderBox('pipe-staging', pStage, 'badge-staging', '📋 ');
+    renderBox('pipe-local', pLocal, 'badge-local', '📦 ');
+    renderBox('pipe-remote', pRemote, 'badge-remote', '☁️ ');
+  }
+
+  function renderBox(id, list, css, prefix) {
+    const el = document.getElementById(id);
+    el.innerHTML = '';
+    list.forEach(i => {
+      const d = document.createElement('div');
+      d.className = `badge ${css}`;
+      d.textContent = prefix + i;
+      el.appendChild(d);
+    });
+  }
+
+  function pipeLog(msg) { document.getElementById('pipe-log').textContent = `> ${msg}`; }
+
+  function pipeEdit() {
+    fileCounter++;
+    pWork.push(`app_${fileCounter}.js`);
+    renderPipe();
+    pipeLog(`Archivo "app_${fileCounter}.js" modificado en tu Directorio de Trabajo.`);
+  }
+
+  function pipeAdd() {
+    if (!pWork.length) return pipeLog('❌ No hay cambios locales para añadir.');
+    pStage = pStage.concat(pWork);
+    pWork = [];
+    renderPipe();
+    pipeLog('git add . ➔ Archivos movidos al Staging Area (preparados para commit).');
+  }
+
+  function pipeCommit() {
+    if (!pStage.length) return pipeLog('❌ Staging Area vacío. Haz "git add ." primero.');
+    const hash = Math.random().toString(16).substring(2, 9);
+    pLocal.push(`Commit #${pLocal.length + 1} (${hash})`);
+    pStage = [];
+    renderPipe();
+    pipeLog('git commit ➔ Cambios empaquetados en el Repositorio Local.');
+  }
+
+  function pipePush() {
+    if (!pLocal.length) return pipeLog('❌ No hay commits locales para subir.');
+    if (pRemote.length === pLocal.length) return pipeLog('ℹ️ Everything up-to-date: el remoto ya tiene todos tus commits.');
+    pRemote = [...pLocal];
+    renderPipe();
+    pipeLog('git push origin main ➔ Repositorio local sincronizado con la Nube.');
+  }
+
+  function pipeReset() {
+    pWork = []; pStage = []; pLocal = []; pRemote = []; fileCounter = 0;
+    renderPipe();
+    pipeLog('Simulador reiniciado.');
+  }
+
+  // --- TAB 2: GRAPH VISUALIZER ---
+  const LANE = { feature: 60, main: 150 };
+  const STEP = 80;
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+
+  let gNodes, gBranches, activeBranch, commitCount, mergeCount;
+
+  function initGraph(nodes, branches, count) {
+    gNodes = nodes;
+    gBranches = branches;
+    activeBranch = 'main';
+    commitCount = count;
+    mergeCount = 0;
+  }
+
+  function node(id) { return gNodes.find(n => n.id === id); }
+  function nextX() { return Math.max(...gNodes.map(n => n.x)) + STEP; }
+
+  // All commits reachable from `id` (including itself)
+  function ancestors(id) {
+    const seen = new Set();
+    const stack = [id];
+    while (stack.length) {
+      const cur = stack.pop();
+      if (seen.has(cur)) continue;
+      seen.add(cur);
+      const n = node(cur);
+      if (n) stack.push(...n.parents);
+    }
+    return seen;
+  }
+  function isAncestor(a, b) { return ancestors(b).has(a); }
+
+  function graphLog(msg) { document.getElementById('graph-log').textContent = `> ${msg}`; }
+
+  function svgEl(tag, attrs, text) {
+    const el = document.createElementNS(SVG_NS, tag);
+    Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+    if (text !== undefined) el.textContent = text;
+    return el;
+  }
+
+  function renderGraph() {
+    const svg = document.getElementById('graphSvg');
+    const container = document.getElementById('graphContainer');
+    svg.innerHTML = '';
+
+    const width = Math.max(nextX() + 60, container.clientWidth - 16, 300);
+    svg.setAttribute('width', width);
+    svg.setAttribute('viewBox', `0 0 ${width} 220`);
+
+    // Connection lines
+    gNodes.forEach(n => {
+      n.parents.forEach(pId => {
+        const p = node(pId);
+        if (!p) return;
+        svg.appendChild(svgEl('line', {
+          x1: p.x, y1: p.y, x2: n.x, y2: n.y,
+          stroke: n.orphan ? '#475569' : '#64748b', 'stroke-width': 3,
+          'stroke-dasharray': n.orphan ? '5 5' : 'none', opacity: n.orphan ? 0.5 : 1
+        }));
+      });
+    });
+
+    // Commit nodes
+    gNodes.forEach(n => {
+      const color = n.lane === 'main' ? '#38bdf8' : '#c084fc';
+      svg.appendChild(svgEl('circle', {
+        cx: n.x, cy: n.y, r: 17,
+        fill: n.orphan ? '#0f172a' : color,
+        stroke: n.orphan ? '#64748b' : '#0f172a', 'stroke-width': 3,
+        'stroke-dasharray': n.orphan ? '4 3' : 'none'
+      }));
+      svg.appendChild(svgEl('text', {
+        x: n.x, y: n.y + 4, 'text-anchor': 'middle',
+        fill: n.orphan ? '#64748b' : '#0f172a', 'font-size': '10px', 'font-weight': 'bold'
+      }, n.id));
+    });
+
+    // Branch labels (stacked per commit) and HEAD
+    const stackCount = {};
+    Object.keys(gBranches).forEach(bName => {
+      const target = node(gBranches[bName]);
+      if (!target) return;
+      const slot = stackCount[target.id] || 0;
+      stackCount[target.id] = slot + 1;
+
+      const label = bName + (bName === activeBranch ? ' (HEAD)' : '');
+      const w = label.length * 6.6 + 12;
+      const tagY = target.y - 44 - slot * 22;
+      svg.appendChild(svgEl('rect', {
+        x: target.x - w / 2, y: tagY, width: w, height: 18, rx: 4,
+        fill: bName === 'main' ? '#0284c7' : '#9333ea',
+        stroke: bName === activeBranch ? '#facc15' : 'none', 'stroke-width': 1.5
+      }));
+      svg.appendChild(svgEl('text', {
+        x: target.x, y: tagY + 13, 'text-anchor': 'middle',
+        fill: '#fff', 'font-size': '10px', 'font-weight': 'bold'
+      }, label));
+    });
+
+    // Keep the newest commits in view
+    container.scrollLeft = container.scrollWidth;
+  }
+
+  function graphCommit() {
+    commitCount++;
+    const newId = 'C' + commitCount;
+    const parentId = gBranches[activeBranch];
+    gNodes.push({ id: newId, lane: activeBranch, x: nextX(), y: LANE[activeBranch], parents: [parentId] });
+    gBranches[activeBranch] = newId;
+    renderGraph();
+    graphLog(`git commit ➔ Nuevo commit ${newId} en la rama "${activeBranch}". La rama (y HEAD con ella) avanza.`);
+  }
+
+  function graphNewBranch() {
+    if (gBranches.feature) return graphLog('ℹ️ La rama "feature" ya existe. Usa "git switch" para cambiar a ella.');
+    gBranches.feature = gBranches[activeBranch];
+    activeBranch = 'feature';
+    renderGraph();
+    graphLog('git switch -c feature ➔ Rama "feature" creada en el commit actual. HEAD ahora apunta a "feature".');
+  }
+
+  function graphToggleBranch() {
+    if (!gBranches.feature) return graphLog('❌ Primero crea la rama "feature".');
+    activeBranch = activeBranch === 'main' ? 'feature' : 'main';
+    renderGraph();
+    graphLog(`git switch ${activeBranch} ➔ HEAD ahora apunta a la rama "${activeBranch}".`);
+  }
+
+  function graphMerge() {
+    if (!gBranches.feature) return graphLog('❌ No hay rama feature para fusionar.');
+    if (activeBranch !== 'main') {
+      return graphLog('ℹ️ Cámbiate a "main" con "git switch main" para fusionar "feature" dentro de main.');
+    }
+
+    const mainId = gBranches.main;
+    const featId = gBranches.feature;
+
+    if (isAncestor(featId, mainId)) {
+      return graphLog('git merge feature ➔ Already up to date. "main" ya contiene todos los commits de "feature".');
+    }
+
+    if (isAncestor(mainId, featId)) {
+      gBranches.main = featId;
+      renderGraph();
+      return graphLog('git merge feature ➔ Fusión Fast-Forward. No hay commits nuevos en main, así que su puntero simplemente avanza hasta ' + featId + '.');
+    }
+
+    mergeCount++;
+    const mergeId = 'M' + mergeCount;
+    gNodes.push({ id: mergeId, lane: 'main', x: nextX(), y: LANE.main, parents: [mainId, featId] });
+    gBranches.main = mergeId;
+    renderGraph();
+    graphLog(`git merge feature ➔ Fusión 3-Way. Las ramas divergían, así que se crea el commit de fusión ${mergeId} con 2 padres.`);
+  }
+
+  function graphRebase() {
+    if (!gBranches.feature) return graphLog('❌ Primero crea la rama "feature".');
+    if (activeBranch !== 'feature') return graphLog('ℹ️ Debes estar en la rama "feature" para hacer "git rebase main".');
+
+    const mainId = gBranches.main;
+    const featId = gBranches.feature;
+
+    if (isAncestor(mainId, featId)) {
+      return graphLog('git rebase main ➔ Current branch feature is up to date. "feature" ya parte de la punta de main.');
+    }
+
+    // Commits in feature that are not in main, in creation order (merge commits are dropped, as git does by default)
+    const inMain = ancestors(mainId);
+    const inFeat = ancestors(featId);
+    const toReplay = gNodes.filter(n => inFeat.has(n.id) && !inMain.has(n.id) && n.parents.length === 1);
+
+    // Drop commits abandoned by a previous rebase to keep the graph readable
+    gNodes = gNodes.filter(n => !n.orphan);
+
+    let parent = mainId;
+    let x = nextX();
+    const copies = toReplay.map(orig => {
+      const copy = { id: orig.id + '′', lane: 'feature', x, y: LANE.feature, parents: [parent] };
+      parent = copy.id;
+      x += STEP;
+      return copy;
+    });
+
+    // Originals are no longer referenced by any branch
+    toReplay.forEach(n => { n.orphan = true; });
+    gNodes.push(...copies);
+    gBranches.feature = copies.length ? copies[copies.length - 1].id : mainId;
+    renderGraph();
+
+    const names = toReplay.map(n => n.id).join(', ');
+    graphLog(`git rebase main ➔ ${names} se reaplican sobre ${mainId} como commits NUEVOS (${copies.map(c => c.id).join(', ')}). Los originales quedan abandonados. Historial lineal.`);
+  }
+
+  function loadScenarioFF() {
+    initGraph([
+      { id: 'C1', lane: 'main', x: 60, y: LANE.main, parents: [] },
+      { id: 'C2', lane: 'main', x: 140, y: LANE.main, parents: ['C1'] },
+      { id: 'C3', lane: 'feature', x: 220, y: LANE.feature, parents: ['C2'] },
+      { id: 'C4', lane: 'feature', x: 300, y: LANE.feature, parents: ['C3'] }
+    ], { main: 'C2', feature: 'C4' }, 4);
+    renderGraph();
+    graphLog('Escenario Fast-Forward cargado. "main" no ha avanzado desde que nació "feature": prueba "git merge feature".');
+  }
+
+  function loadScenarioDivergent() {
+    initGraph([
+      { id: 'C1', lane: 'main', x: 60, y: LANE.main, parents: [] },
+      { id: 'C2', lane: 'main', x: 140, y: LANE.main, parents: ['C1'] },
+      { id: 'C3', lane: 'feature', x: 220, y: LANE.feature, parents: ['C2'] },
+      { id: 'C4', lane: 'main', x: 300, y: LANE.main, parents: ['C2'] },
+      { id: 'C5', lane: 'feature', x: 380, y: LANE.feature, parents: ['C3'] }
+    ], { main: 'C4', feature: 'C5' }, 5);
+    renderGraph();
+    graphLog('Escenario Divergente cargado. Prueba "git merge feature", o cambia a feature y haz "git rebase main".');
+  }
+
+  function graphReset() {
+    initGraph([
+      { id: 'C1', lane: 'main', x: 60, y: LANE.main, parents: [] },
+      { id: 'C2', lane: 'main', x: 140, y: LANE.main, parents: ['C1'] }
+    ], { main: 'C2' }, 2);
+    renderGraph();
+    graphLog('Árbol reiniciado a C1 → C2 en "main".');
+  }
+
+  // --- TAB 3: CHEAT SHEET SEARCH & COPY ---
+  function copyCmd(btn) {
+    const text = btn.parentElement.querySelector('.cmd-code').textContent;
+    const done = () => {
+      btn.textContent = '¡Copiado!';
+      btn.style.color = 'var(--accent-green)';
+      setTimeout(() => { btn.textContent = 'Copiar'; btn.style.color = ''; }, 1200);
+    };
+    const fallback = () => {
+      const temp = document.createElement('textarea');
+      temp.value = text;
+      temp.setAttribute('readonly', '');
+      temp.style.position = 'fixed';
+      temp.style.opacity = '0';
+      document.body.appendChild(temp);
+      temp.select();
+      try { document.execCommand('copy'); done(); } catch (e) { /* ignore */ }
+      document.body.removeChild(temp);
+    };
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(done, fallback);
+    } else {
+      fallback();
+    }
+  }
+
+  function filterCommands() {
+    const input = document.getElementById('searchInput').value.trim().toLowerCase();
+    let anyVisible = false;
+    document.querySelectorAll('#sectionsGrid .card').forEach(card => {
+      const titleMatch = card.querySelector('.card-title').textContent.toLowerCase().includes(input);
+      let cardMatch = false;
+      card.querySelectorAll('.cmd-group').forEach(group => {
+        const match = titleMatch || group.textContent.toLowerCase().includes(input);
+        group.style.display = match ? '' : 'none';
+        if (match) cardMatch = true;
+      });
+      card.style.display = cardMatch ? '' : 'none';
+      if (cardMatch) anyVisible = true;
+    });
+    document.getElementById('noResults').style.display = anyVisible ? 'none' : 'block';
+  }
+
+  // Initial Render
+  graphReset();
+  graphLog('Estado actual: En la rama "main". Haz un commit o crea una rama.');
+  renderPipe();
+  window.addEventListener('resize', () => {
+    if (document.getElementById('tab-graph').classList.contains('active')) renderGraph();
+  });
+</script>
+</body>
+</html>
