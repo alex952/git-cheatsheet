@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Cheat sheet interactivo de Git: simula las 4 áreas, visualiza ramas, HEAD, merge y rebase, y copia los comandos esenciales.">
+  <meta name="description" content="Cheat sheet interactivo de Git: simula las 4 áreas, visualiza ramas, HEAD, merge y rebase, y copia los comandos esenciales. Incluye conflictos de merge, worktrees, GitHub y estrategias de ramas.">
   <title>Git Cheat Sheet & Interactive Visualizer</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
   <style>
@@ -128,6 +128,50 @@
     .tag-warning { background: rgba(250, 204, 21, 0.2); color: var(--accent-yellow); }
 
     footer { text-align: center; margin-top: 3rem; color: var(--text-muted); font-size: 0.85rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem; }
+
+    /* Shared helpers for tabs 4-7 */
+    .sim-card h3 { font-size: 1.05rem; color: var(--accent-pink); margin: 1.25rem 0 0.5rem; }
+    .sim-card p + p { margin-top: 0.6rem; }
+    .sim-card p { font-size: 0.925rem; }
+    .callout { border-left: 4px solid var(--accent-yellow); background: rgba(250, 204, 21, 0.08); padding: 0.75rem 1rem; border-radius: 0 8px 8px 0; font-size: 0.875rem; margin: 1rem 0; overflow-wrap: anywhere; }
+    .callout.info { border-color: var(--accent-blue); background: rgba(56, 189, 248, 0.08); }
+    .callout.danger { border-color: #f87171; background: rgba(248, 113, 113, 0.08); }
+    pre.codeblock { background: var(--code-bg); border: 1px solid var(--border-color); border-radius: 6px; padding: 0.75rem 1rem; font-family: ui-monospace, monospace; font-size: 0.82rem; overflow-x: auto; line-height: 1.55; color: var(--text-main); margin: 0.5rem 0; }
+    pre.codeblock .c { color: var(--text-muted); }
+    pre.codeblock .k { color: var(--accent-green); }
+    .conf-mark { color: var(--accent-yellow); font-weight: 700; }
+    .conf-ours { color: var(--accent-blue); }
+    .conf-theirs { color: var(--accent-purple); }
+    .conf-ok { color: var(--accent-green); }
+    .two-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: 1rem; }
+    .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr)); gap: 0.6rem; margin: 0.75rem 0; counter-reset: step; }
+    .step { counter-increment: step; background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.7rem 0.8rem; font-size: 0.83rem; color: var(--text-muted); }
+    .step b { display: block; color: var(--accent-blue); font-size: 0.85rem; margin-bottom: 0.2rem; }
+    .step b::before { content: counter(step) ". "; color: var(--accent-git); }
+    ul.clean { padding-left: 1.1rem; color: var(--text-muted); font-size: 0.875rem; }
+    ul.clean li { margin-bottom: 0.25rem; }
+    ul.clean li::marker { color: var(--accent-git); }
+    .pill { display: inline-block; font-size: 0.7rem; font-weight: 700; padding: 0.1rem 0.45rem; border-radius: 999px; margin-right: 0.35rem; text-transform: uppercase; }
+    .pill-good { background: rgba(74, 222, 128, 0.2); color: var(--accent-green); }
+    .pill-bad { background: rgba(248, 113, 113, 0.2); color: #f87171; }
+    .table-wrap { overflow-x: auto; margin-top: 0.75rem; }
+    table.cmp { width: 100%; border-collapse: collapse; font-size: 0.85rem; min-width: 560px; }
+    table.cmp th, table.cmp td { text-align: left; padding: 0.55rem 0.75rem; border-bottom: 1px solid var(--border-color); vertical-align: top; }
+    table.cmp th { color: var(--accent-blue); font-size: 0.8rem; text-transform: uppercase; }
+    table.cmp td { color: var(--text-muted); }
+    table.cmp td:first-child { color: var(--text-main); font-weight: 600; }
+    .flow-svg { display: block; width: 100%; height: auto; min-width: 460px; }
+    .flow-box { background: var(--code-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.5rem; overflow-x: auto; margin: 0.75rem 0; }
+    .mini-graphs { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 1rem; }
+    .mini-graphs h4 { font-size: 0.9rem; color: var(--text-main); margin-bottom: 0.25rem; }
+    .mini-graphs p { font-size: 0.8rem !important; color: var(--text-muted); }
+
+    /* Worktree diagram */
+    .wt-diagram { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr)); gap: 0.75rem; margin: 0.75rem 0 0; }
+    .wt-box { background: rgba(15, 23, 42, 0.6); border: 2px solid var(--border-color); border-radius: 8px 8px 0 0; padding: 0.75rem; font-size: 0.82rem; color: var(--text-muted); border-bottom: none; }
+    .wt-box .wt-path { font-family: ui-monospace, monospace; color: var(--text-main); font-weight: 600; overflow-wrap: anywhere; }
+    .wt-box .wt-branch { display: inline-block; margin: 0.35rem 0; padding: 0.1rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; color: #0f172a; }
+    .wt-store { border: 2px solid var(--accent-git); border-radius: 0 0 8px 8px; background: rgba(240, 80, 50, 0.08); padding: 0.6rem 0.9rem; font-size: 0.82rem; text-align: center; grid-column: 1 / -1; margin-top: -0.75rem; overflow-wrap: anywhere; }
   </style>
 </head>
 <body>
@@ -143,6 +187,10 @@
     <button type="button" class="tab-btn active" role="tab" id="btn-pipeline" aria-controls="tab-pipeline" aria-selected="true" onclick="switchTab(this, 'tab-pipeline')">1. Flujo de Trabajo (4 Áreas)</button>
     <button type="button" class="tab-btn" role="tab" id="btn-graph" aria-controls="tab-graph" aria-selected="false" onclick="switchTab(this, 'tab-graph')">2. Ramas, HEAD, Merge & Rebase</button>
     <button type="button" class="tab-btn" role="tab" id="btn-cheatsheet" aria-controls="tab-cheatsheet" aria-selected="false" onclick="switchTab(this, 'tab-cheatsheet')">3. Comandos & Cheat Sheet</button>
+    <button type="button" class="tab-btn" role="tab" id="btn-conflicts" aria-controls="tab-conflicts" aria-selected="false" onclick="switchTab(this, 'tab-conflicts')">4. Conflictos de Merge</button>
+    <button type="button" class="tab-btn" role="tab" id="btn-worktrees" aria-controls="tab-worktrees" aria-selected="false" onclick="switchTab(this, 'tab-worktrees')">5. Worktrees</button>
+    <button type="button" class="tab-btn" role="tab" id="btn-github" aria-controls="tab-github" aria-selected="false" onclick="switchTab(this, 'tab-github')">6. GitHub</button>
+    <button type="button" class="tab-btn" role="tab" id="btn-strategies" aria-controls="tab-strategies" aria-selected="false" onclick="switchTab(this, 'tab-strategies')">7. Estrategias de Ramas</button>
   </div>
 
   <!-- TAB 1: 4 STAGES PIPELINE -->
@@ -322,6 +370,618 @@
 
     </div>
     <p class="no-results" id="noResults">No hay comandos que coincidan con tu búsqueda.</p>
+  </div>
+
+  <!-- TAB 4: MERGE CONFLICTS -->
+  <div id="tab-conflicts" class="tab-content" role="tabpanel" aria-labelledby="btn-conflicts">
+    <section class="sim-card">
+      <h2>Conflictos de Merge: qué son y cómo resolverlos</h2>
+      <p class="desc">Un conflicto aparece cuando Git no puede decidir solo qué versión conservar: ambas ramas modificaron las mismas líneas (o una borró un archivo que la otra editó).</p>
+
+      <div class="two-col">
+        <div>
+          <h3 style="margin-top:0">Cómo se ve un conflicto</h3>
+          <p>Git marca el archivo con tres separadores. Todo lo que está entre ellos es tu decisión:</p>
+<pre class="codeblock"><span class="c">function saludar() {</span>
+<span class="conf-mark">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</span>
+<span class="conf-ours">  return "Hola, mundo";</span>
+<span class="conf-mark">=======</span>
+<span class="conf-theirs">  return "Hello, world";</span>
+<span class="conf-mark">&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature/ingles</span>
+<span class="c">}</span></pre>
+        </div>
+        <div>
+          <h3 style="margin-top:0">Cómo leerlo</h3>
+          <ul class="clean">
+            <li><span class="conf-ours">Entre <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code> y <code>=======</code></span>: tu versión (la rama en la que estás, "ours").</li>
+            <li><span class="conf-theirs">Entre <code>=======</code> y <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code></span>: la versión entrante (la rama que fusionas, "theirs").</li>
+            <li>Tu trabajo: dejar el código final correcto y <strong>borrar los tres marcadores</strong>.</li>
+            <li>Con <code>merge.conflictStyle zdiff3</code> aparece además la versión del ancestro común (<code>|||||||</code>), muy útil para entender qué cambió cada lado.</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>El proceso paso a paso</h3>
+      <div class="steps">
+        <div class="step"><b>Detecta</b><code>git merge feature</code> falla con "CONFLICT". Git queda a medias.</div>
+        <div class="step"><b>Localiza</b><code>git status</code> lista los archivos en "both modified" (unmerged).</div>
+        <div class="step"><b>Edita</b>Abre cada archivo, decide el contenido final y quita los marcadores.</div>
+        <div class="step"><b>Marca</b><code>git add archivo</code> le dice a Git que ese archivo ya está resuelto.</div>
+        <div class="step"><b>Termina</b><code>git commit</code> (o <code>git merge --continue</code>) crea el commit de fusión.</div>
+      </div>
+    </section>
+
+    <section class="sim-card">
+      <h2>Simulador: resuelve un conflicto</h2>
+      <p class="desc">Elige qué hacer con el bloque en conflicto de <code>saludo.js</code> y mira cómo queda el archivo.</p>
+<pre class="codeblock" id="conflict-file" aria-live="polite"></pre>
+      <div class="btn-group">
+        <button type="button" class="sim-btn" onclick="conflictPick('head')">Aceptar actual (HEAD)</button>
+        <button type="button" class="sim-btn" onclick="conflictPick('incoming')">Aceptar entrante</button>
+        <button type="button" class="sim-btn" onclick="conflictPick('both')">Aceptar ambos</button>
+        <button type="button" class="sim-btn sim-btn-reset" onclick="conflictPick('reset')">Reiniciar</button>
+      </div>
+      <div class="console-log" id="conflict-log" aria-live="polite"></div>
+    </section>
+
+    <h2 style="margin-bottom:1rem;color:var(--accent-blue);font-size:1.4rem;">Estrategias para resolverlos</h2>
+    <div class="sections-grid">
+
+      <div class="card">
+        <div class="card-title">✍️ 1. Manual (la más común)</div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git status</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Ver qué archivos están en conflicto ("Unmerged paths").</div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git diff --name-only --diff-filter=U</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Lista solo los archivos sin resolver.</div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git add &lt;archivo&gt;</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Marca el archivo como resuelto tras editarlo. <span class="tag tag-essential">Esencial</span></div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git merge --continue</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Cierra el merge cuando no quedan conflictos (equivale a <code>git commit</code>).</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🎯 2. Quedarte con un lado (por archivo)</div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git checkout --ours -- &lt;archivo&gt;</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Descarta la versión entrante y deja la tuya. También: <code>git restore --ours</code>.</div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git checkout --theirs -- &lt;archivo&gt;</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Descarta la tuya y deja la entrante. Después hay que hacer <code>git add</code>.</div>
+        </div>
+        <div class="callout danger"><strong>Ojo en un rebase:</strong> <code>ours</code> y <code>theirs</code> se <em>invierten</em>. Durante <code>git rebase main</code>, "ours" es <code>main</code> (sobre lo que reaplicas) y "theirs" son <em>tus</em> commits.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">⚡ 3. Resolver automáticamente al fusionar</div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git merge -X ours feature</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Fusiona todo, pero en las <em>líneas en conflicto</em> gana tu versión. Lo no conflictivo de la otra rama sí entra.</div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git merge -X theirs feature</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Igual, pero en los conflictos gana la rama entrante.</div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git merge -s ours feature</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Registra el merge pero <strong>ignora por completo</strong> el contenido de <code>feature</code>. <span class="tag tag-warning">Peligroso</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🧰 4. Herramientas visuales</div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git mergetool</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Abre tu herramienta de merge (VS Code, Meld, vimdiff…) archivo por archivo.</div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git config --global merge.tool vscode</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Configura qué herramienta usa <code>mergetool</code>.</div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git config --global merge.conflictStyle zdiff3</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Muestra también el ancestro común dentro del conflicto. <span class="tag tag-essential">Recomendado</span></div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git diff --ours</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Compara el archivo en conflicto contra tu versión (también <code>--theirs</code> y <code>--base</code>).</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🚪 5. Abortar y volver al inicio</div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git merge --abort</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Cancela el merge y deja todo como estaba antes. <span class="tag tag-essential">Seguro</span></div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git rebase --abort</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Cancela un rebase en curso y restaura la rama original.</div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git cherry-pick --abort</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Cancela un cherry-pick conflictivo.</div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git checkout -m &lt;archivo&gt;</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Recrea los marcadores de conflicto de un archivo que ya habías "resuelto" mal (antes de commitear).</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🔁 6. Conflictos durante un rebase</div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git rebase --continue</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Tras resolver y hacer <code>git add</code>, sigue con el siguiente commit. Puedes tener que resolver <em>varias veces</em> (una por commit).</div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git rebase --skip</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Descarta el commit actual que provoca el conflicto. <span class="tag tag-warning">Pierde ese commit</span></div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git cherry-pick --continue</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Igual que arriba para un cherry-pick (y <code>git stash pop</code>: resuelve, <code>git add</code> y borra el stash con <code>git stash drop</code>).</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🧠 7. Que Git recuerde tus resoluciones</div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git config --global rerere.enabled true</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">"Reuse recorded resolution": si vuelves a ver el mismo conflicto (típico al rebasar muchas veces), Git aplica tu resolución anterior solo.</div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git rerere status</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Muestra qué archivos tienen resolución registrada.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🛡️ 8. Cómo evitarlos</div>
+        <ul class="clean">
+          <li>Integra <code>main</code> en tu rama con frecuencia (<code>git pull --rebase</code> o <code>git merge main</code>).</li>
+          <li>Ramas pequeñas y de vida corta.</li>
+          <li>Evita reformatear archivos enteros en el mismo PR que cambias lógica.</li>
+          <li>Comunícate: dos personas tocando el mismo archivo = conflicto asegurado.</li>
+          <li>Tras resolver, <strong>compila y pasa los tests</strong>: un conflicto "resuelto" puede compilar mal aunque Git no se queje.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 5: WORKTREES -->
+  <div id="tab-worktrees" class="tab-content" role="tabpanel" aria-labelledby="btn-worktrees">
+    <section class="sim-card">
+      <h2>Git Worktrees: varias ramas abiertas a la vez</h2>
+      <p class="desc">Un worktree es un directorio de trabajo adicional enlazado al mismo repositorio. Cada uno tiene su propia rama activa, pero todos comparten el historial y los objetos.</p>
+
+      <div class="wt-diagram" role="img" aria-label="Tres directorios de trabajo compartiendo un único repositorio .git">
+        <div class="wt-box">
+          <div class="wt-path">📁 mi-proyecto/</div>
+          <span class="wt-branch" style="background:#38bdf8">main</span>
+          <div>Worktree principal. Contiene la carpeta <code>.git/</code> real.</div>
+        </div>
+        <div class="wt-box">
+          <div class="wt-path">📁 ../mi-proyecto-hotfix/</div>
+          <span class="wt-branch" style="background:#f87171">hotfix/bug-123</span>
+          <div>Un parche urgente sin tocar tu trabajo a medias.</div>
+        </div>
+        <div class="wt-box">
+          <div class="wt-path">📁 ../mi-proyecto-review/</div>
+          <span class="wt-branch" style="background:#c084fc">feature/login</span>
+          <div>Para revisar la rama de otra persona en paralelo.</div>
+        </div>
+        <div class="wt-store">🗄️ Un único repositorio compartido: commits, ramas, tags y remotos viven en <code>mi-proyecto/.git</code></div>
+      </div>
+
+      <div class="two-col" style="margin-top:1.25rem">
+        <div>
+          <h3 style="margin-top:0">¿Para qué sirve?</h3>
+          <ul class="clean">
+            <li>Te llega un <strong>bug urgente</strong> y no quieres hacer <code>stash</code> ni un commit "WIP".</li>
+            <li><strong>Revisar un PR</strong> ejecutándolo en local sin cambiar tu rama.</li>
+            <li>Lanzar <strong>tests o builds largos</strong> en una rama mientras sigues programando en otra.</li>
+            <li>Comparar el comportamiento de dos versiones lado a lado.</li>
+            <li>Trabajar con <strong>agentes/asistentes de IA</strong> en paralelo, cada uno en su rama aislada.</li>
+          </ul>
+        </div>
+        <div>
+          <h3 style="margin-top:0">Frente a las alternativas</h3>
+          <ul class="clean">
+            <li><strong>vs. <code>git stash</code></strong>: no hay que guardar/restaurar nada; ambos estados coexisten.</li>
+            <li><strong>vs. clonar de nuevo</strong>: no duplicas el historial ni los objetos, y los commits se ven al instante en todos los worktrees.</li>
+            <li><strong>vs. <code>git switch</code></strong>: cambiar de rama reescribe archivos y invalida caches/builds; con worktrees cada carpeta conserva los suyos.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout danger"><strong>Regla de oro:</strong> una misma rama no puede estar activa en dos worktrees a la vez. Git lo impide para que no pises tus propios cambios.</div>
+    </section>
+
+    <section class="sim-card">
+      <h2>Escenario típico: bug urgente</h2>
+      <p class="desc">Estás en <code>feature/pagos</code> con cambios sin terminar y llega un hotfix:</p>
+<pre class="codeblock"><span class="c"># 1. Crea un worktree nuevo con una rama nueva basada en main</span>
+<span class="k">git worktree add -b hotfix/bug-123 ../mi-proyecto-hotfix main</span>
+
+<span class="c"># 2. Trabaja ahí sin tocar tu carpeta original</span>
+<span class="k">cd ../mi-proyecto-hotfix</span>
+<span class="k">git commit -am "Arregla el bug 123"</span>
+<span class="k">git push -u origin hotfix/bug-123</span>
+
+<span class="c"># 3. Cuando se haya fusionado, vuelve y limpia</span>
+<span class="k">cd ../mi-proyecto</span>
+<span class="k">git worktree remove ../mi-proyecto-hotfix</span>
+<span class="k">git branch -d hotfix/bug-123</span></pre>
+    </section>
+
+    <div class="sections-grid">
+      <div class="card">
+        <div class="card-title">🌳 Comandos de worktree</div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git worktree add &lt;ruta&gt; &lt;rama&gt;</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Crea un worktree con una <em>rama existente</em>. <span class="tag tag-essential">Esencial</span></div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git worktree add -b &lt;nueva&gt; &lt;ruta&gt; &lt;base&gt;</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Crea la rama nueva a partir de <code>&lt;base&gt;</code> y su worktree a la vez.</div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git worktree add --detach &lt;ruta&gt; &lt;tag-o-commit&gt;</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Worktree en HEAD desatachado, ideal para inspeccionar un tag o commit sin crear rama.</div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git worktree list</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Muestra todos los worktrees, su commit y su rama.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🧹 Mantenimiento</div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git worktree remove &lt;ruta&gt;</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Borra el worktree (falla si tiene cambios sin commitear; usa <code>--force</code> para forzar).</div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git worktree prune</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Limpia referencias de worktrees cuya carpeta borraste a mano.</div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git worktree move &lt;ruta&gt; &lt;nueva-ruta&gt;</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Mueve un worktree (no uses <code>mv</code> a secas).</div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git worktree lock &lt;ruta&gt;</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Evita que <code>prune</code> lo elimine (útil en discos externos o unidades de red). Se revierte con <code>unlock</code>.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">💡 Consejos y trampas</div>
+        <ul class="clean">
+          <li>Crea los worktrees <strong>fuera</strong> de la carpeta del proyecto (<code>../nombre</code>) para no anidarlos.</li>
+          <li>Cada worktree necesita sus propias dependencias (<code>node_modules</code>, <code>venv</code>…) y su <code>.env</code>, porque están ignorados por Git.</li>
+          <li>Los <code>stash</code>, ramas y tags son <strong>compartidos</strong>: un commit hecho en un worktree aparece al instante en los demás.</li>
+          <li>Borrar la carpeta a mano deja metadatos huérfanos: usa <code>remove</code> o <code>prune</code>.</li>
+          <li>Los submódulos tienen soporte limitado en worktrees; compruébalo antes si los usas.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 6: GITHUB -->
+  <div id="tab-github" class="tab-content" role="tabpanel" aria-labelledby="btn-github">
+    <section class="sim-card">
+      <h2>GitHub: lo que Git no te cuenta</h2>
+      <p class="desc"><strong>Git</strong> es la herramienta local de control de versiones; <strong>GitHub</strong> es la plataforma que aloja repositorios remotos y añade colaboración: Pull Requests, Issues, Actions, permisos y más.</p>
+
+      <h3 style="margin-top:0">Ciclo de vida de un Pull Request</h3>
+      <div class="steps">
+        <div class="step"><b>Rama</b><code>git switch -c feature/x</code> desde un <code>main</code> actualizado.</div>
+        <div class="step"><b>Commits</b>Trabaja y haz commits pequeños con mensajes claros.</div>
+        <div class="step"><b>Push</b><code>git push -u origin feature/x</code> sube la rama a GitHub.</div>
+        <div class="step"><b>Abre el PR</b>Describe el cambio, enlaza el Issue y pide revisores.</div>
+        <div class="step"><b>Revisión + CI</b>Comentarios, cambios solicitados y checks de Actions en verde.</div>
+        <div class="step"><b>Merge</b>Se fusiona con el método elegido y se borra la rama.</div>
+      </div>
+
+      <h3>Los 3 métodos de merge de un PR</h3>
+      <p>El botón verde de GitHub ofrece tres formas de integrar el mismo PR. Las diferencias están en cómo queda el historial de <code>main</code> (los círculos punteados son commits que ya no llegan a <code>main</code> tal cual):</p>
+      <div class="mini-graphs">
+        <div>
+          <h4>Create a merge commit</h4>
+          <div class="flow-box"><svg class="flow-svg" id="gh-merge" style="min-width:300px"></svg></div>
+          <p>Conserva todos los commits y añade un commit de fusión. Historial fiel pero con mucho ruido.</p>
+        </div>
+        <div>
+          <h4>Squash and merge</h4>
+          <div class="flow-box"><svg class="flow-svg" id="gh-squash" style="min-width:300px"></svg></div>
+          <p>Aplasta todo el PR en <strong>un único commit</strong>. Historial limpio y 1 PR = 1 commit. El más usado.</p>
+        </div>
+        <div>
+          <h4>Rebase and merge</h4>
+          <div class="flow-box"><svg class="flow-svg" id="gh-rebase" style="min-width:300px"></svg></div>
+          <p>Reaplica cada commit sobre <code>main</code> (con hashes nuevos). Historial lineal sin commit de fusión.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="sections-grid">
+      <div class="card">
+        <div class="card-title">🔑 Remotos y autenticación</div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git remote -v</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Lista los remotos configurados y sus URLs.</div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git remote add origin git@github.com:usuario/repo.git</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Conecta tu repo local con uno de GitHub (SSH).</div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">ssh-keygen -t ed25519 -C "tu@email.com"</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Genera una clave SSH; sube la <em>pública</em> (<code>.pub</code>) en Settings → SSH and GPG keys.</div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">ssh -T git@github.com</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Comprueba que GitHub reconoce tu clave.</div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">gh auth login</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Inicia sesión con la CLI oficial <code>gh</code> (navegador o token). <span class="tag tag-essential">Esencial</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🔀 Pull Requests con <code>gh</code></div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">gh pr create --fill</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Abre un PR rellenando título y cuerpo con tus commits. Añade <code>--draft</code> para un borrador. <span class="tag tag-essential">Esencial</span></div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">gh pr list</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Lista los PRs abiertos del repo.</div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">gh pr checkout 123</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Descarga y cambia a la rama del PR #123 para probarlo en local.</div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">gh pr checks</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Estado de los checks de CI del PR actual.</div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">gh pr review 123 --approve</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Aprueba un PR (o <code>--request-changes</code> / <code>--comment</code> con <code>-b "texto"</code>).</div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">gh pr merge --squash --delete-branch</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Fusiona con squash y borra la rama (alternativas: <code>--merge</code>, <code>--rebase</code>).</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🍴 Forks y contribuir a proyectos ajenos</div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">gh repo fork --clone</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Crea tu fork en GitHub, lo clona y configura <code>upstream</code> automáticamente.</div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git remote add upstream &lt;url-del-original&gt;</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Añade el repo original como remoto <code>upstream</code> (si no usaste <code>gh</code>).</div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git fetch upstream</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Trae las novedades del proyecto original.</div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">git rebase upstream/main</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Actualiza tu rama con el original (o <code>git merge upstream/main</code>) y luego <code>git push</code> a tu fork.</div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">gh repo sync</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Sincroniza tu fork con el original en un solo comando.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🐛 Issues y Actions</div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">gh issue create</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Crea un Issue desde la terminal (<code>gh issue list</code> para verlos).</div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">gh run list</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Últimas ejecuciones de GitHub Actions.</div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">gh run watch</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Sigue en vivo una ejecución en curso.</div>
+        </div>
+        <div class="cmd-group">
+          <div class="cmd-header"><span class="cmd-code">gh run view --log-failed</span><button type="button" class="copy-btn" onclick="copyCmd(this)">Copiar</button></div>
+          <div class="cmd-desc">Muestra solo los logs de los pasos que fallaron.</div>
+        </div>
+        <div class="callout info">En la descripción de un PR, <code>Closes #42</code> (también <code>Fixes</code> / <code>Resolves</code>) cierra el Issue #42 automáticamente al fusionar.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🛡️ Protección de ramas y calidad</div>
+        <ul class="clean">
+          <li><strong>Branch protection / Rulesets</strong> (Settings → Rules): exigir PR, número mínimo de aprobaciones, checks verdes y bloquear <em>force-push</em> sobre <code>main</code>.</li>
+          <li><strong>CODEOWNERS</strong> (<code>.github/CODEOWNERS</code>): asigna revisores automáticamente según la ruta modificada.</li>
+          <li><strong>Plantilla de PR</strong> (<code>.github/pull_request_template.md</code>): estructura la descripción de cada PR.</li>
+          <li><strong>Merge queue</strong>: encola PRs y los valida contra el estado más reciente de <code>main</code>.</li>
+          <li><strong>Dependabot</strong>: abre PRs automáticos para actualizar dependencias vulnerables.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-title">⚙️ GitHub Actions: un CI mínimo</div>
+        <p style="font-size:.85rem;color:var(--text-muted)">Archivo <code>.github/workflows/ci.yml</code>:</p>
+<pre class="codeblock"><span class="k">name:</span> CI
+<span class="k">on:</span>
+  <span class="k">pull_request:</span>
+  <span class="k">push:</span>
+    <span class="k">branches:</span> [main]
+<span class="k">jobs:</span>
+  <span class="k">test:</span>
+    <span class="k">runs-on:</span> ubuntu-latest
+    <span class="k">steps:</span>
+      - <span class="k">uses:</span> actions/checkout@v4
+      - <span class="k">run:</span> npm ci
+      - <span class="k">run:</span> npm test</pre>
+        <p style="font-size:.8rem;color:var(--text-muted);margin-top:.5rem">Hospedar esta misma página: Settings → Pages → rama <code>main</code> / carpeta raíz.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 7: BRANCHING STRATEGIES -->
+  <div id="tab-strategies" class="tab-content" role="tabpanel" aria-labelledby="btn-strategies">
+    <section class="sim-card">
+      <h2>Estrategias de ramas más comunes</h2>
+      <p class="desc">No hay una estrategia "correcta": depende de cómo despliega tu equipo. Cada fila del gráfico es una rama; el tiempo avanza hacia la derecha. Las etiquetas amarillas son tags/releases y las líneas que cambian de fila son ramificaciones o merges.</p>
+      <div class="table-wrap">
+        <table class="cmp">
+          <thead><tr><th>Estrategia</th><th>Ramas permanentes</th><th>Ritmo de entrega</th><th>Ideal para</th><th>Complejidad</th></tr></thead>
+          <tbody>
+            <tr><td>GitHub Flow</td><td>solo <code>main</code></td><td>Continuo</td><td>Web/SaaS, equipos pequeños y medianos</td><td>Baja</td></tr>
+            <tr><td>Git Flow</td><td><code>main</code> + <code>develop</code></td><td>Releases planificadas</td><td>Software versionado: apps móviles, librerías, varias versiones en soporte</td><td>Alta</td></tr>
+            <tr><td>Trunk-Based</td><td>solo <code>trunk/main</code></td><td>Continuo, varias veces al día</td><td>Equipos maduros con CI sólido y feature flags</td><td>Media</td></tr>
+            <tr><td>GitLab Flow</td><td><code>main</code> + ramas de entorno</td><td>Promoción entre entornos</td><td>Staging/producción con control de qué versión está dónde</td><td>Media</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="sim-card">
+      <h2>1. GitHub Flow</h2>
+      <p class="desc">Una sola rama estable (<code>main</code>) que <strong>siempre es desplegable</strong>. Todo cambio entra por una rama corta y un Pull Request.</p>
+      <div class="flow-box"><svg class="flow-svg" id="flow-github" role="img" aria-label="Diagrama de GitHub Flow"></svg></div>
+      <div class="two-col">
+        <div>
+          <h3 style="margin-top:0">Flujo</h3>
+          <ul class="clean">
+            <li>Crea una rama descriptiva desde <code>main</code>.</li>
+            <li>Haz commits y súbela pronto; abre el PR (incluso en borrador).</li>
+            <li>Revisión + CI en verde.</li>
+            <li>Merge a <code>main</code> y <strong>despliegue inmediato</strong>.</li>
+          </ul>
+          <p><span class="pill pill-good">Pros</span>Simple, rápido, fácil de aprender.</p>
+          <p><span class="pill pill-bad">Contras</span>No gestiona varias versiones en producción a la vez.</p>
+        </div>
+        <div>
+          <h3 style="margin-top:0">Comandos típicos</h3>
+<pre class="codeblock"><span class="k">git switch -c feature/login main</span>
+<span class="k">git push -u origin feature/login</span>
+<span class="c"># PR → revisión → merge en GitHub</span>
+<span class="k">git switch main &amp;&amp; git pull</span>
+<span class="k">git branch -d feature/login</span></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="sim-card">
+      <h2>2. Git Flow</h2>
+      <p class="desc">Modelo clásico con dos ramas permanentes y tres tipos de ramas de apoyo. Pensado para software con <strong>versiones numeradas</strong>.</p>
+      <div class="flow-box"><svg class="flow-svg" id="flow-gitflow" role="img" aria-label="Diagrama de Git Flow"></svg></div>
+      <div class="two-col">
+        <div>
+          <h3 style="margin-top:0">Flujo</h3>
+          <ul class="clean">
+            <li><code>main</code>: solo código publicado, cada commit lleva un tag de versión.</li>
+            <li><code>develop</code>: rama de integración con lo próximo a salir.</li>
+            <li><code>feature/*</code>: salen de <code>develop</code> y vuelven a <code>develop</code>.</li>
+            <li><code>release/*</code>: congelan <code>develop</code> para estabilizar; al terminar se fusionan a <code>main</code> (con tag) <em>y</em> a <code>develop</code>.</li>
+            <li><code>hotfix/*</code>: salen de <code>main</code> para urgencias; se fusionan a <code>main</code> <em>y</em> a <code>develop</code>.</li>
+          </ul>
+          <p><span class="pill pill-good">Pros</span>Ordena releases y soporta mantenimiento de versiones.</p>
+          <p><span class="pill pill-bad">Contras</span>Muchas ramas, merges frecuentes, poco apto para despliegue continuo.</p>
+        </div>
+        <div>
+          <h3 style="margin-top:0">Comandos típicos</h3>
+<pre class="codeblock"><span class="k">git switch -c feature/x develop</span>
+<span class="k">git switch develop &amp;&amp; git merge --no-ff feature/x</span>
+
+<span class="k">git switch -c release/1.1 develop</span>
+<span class="k">git switch main &amp;&amp; git merge --no-ff release/1.1</span>
+<span class="k">git tag -a v1.1 -m "Versión 1.1"</span>
+<span class="k">git switch develop &amp;&amp; git merge --no-ff release/1.1</span>
+
+<span class="k">git switch -c hotfix/1.1.1 main</span></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="sim-card">
+      <h2>3. Trunk-Based Development</h2>
+      <p class="desc">Todo el equipo integra en <code>main</code> (el "tronco") <strong>al menos una vez al día</strong>. Las ramas, si existen, duran horas. Lo incompleto se esconde tras <em>feature flags</em>.</p>
+      <div class="flow-box"><svg class="flow-svg" id="flow-trunk" role="img" aria-label="Diagrama de Trunk-Based Development"></svg></div>
+      <div class="two-col">
+        <div>
+          <h3 style="margin-top:0">Flujo</h3>
+          <ul class="clean">
+            <li>Commits directos al tronco o ramas de menos de 1-2 días.</li>
+            <li>CI muy rápido y obligatorio en cada integración.</li>
+            <li>El código inacabado se desactiva con <strong>feature flags</strong>, no con ramas largas.</li>
+            <li>Para publicar: se corta una rama <code>release/*</code> desde el tronco y solo recibe <em>cherry-picks</em> de arreglos.</li>
+          </ul>
+          <p><span class="pill pill-good">Pros</span>Casi sin conflictos, integración continua real, entrega muy rápida.</p>
+          <p><span class="pill pill-bad">Contras</span>Exige tests automáticos fiables, disciplina y feature flags.</p>
+        </div>
+        <div>
+          <h3 style="margin-top:0">Comandos típicos</h3>
+<pre class="codeblock"><span class="k">git switch -c fix/typo main</span>
+<span class="k">git commit -am "Corrige typo"</span>
+<span class="k">git pull --rebase origin main</span>
+<span class="k">git push origin fix/typo</span>
+<span class="c"># PR pequeño, merge el mismo día</span>
+
+<span class="c"># Arreglo en una release ya cortada:</span>
+<span class="k">git switch release/1.x</span>
+<span class="k">git cherry-pick &lt;hash-en-main&gt;</span></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="sim-card">
+      <h2>4. GitLab Flow (ramas por entorno)</h2>
+      <p class="desc">GitHub Flow más ramas que representan <strong>entornos</strong>. El código solo avanza en una dirección: <code>main</code> → <code>pre-production</code> → <code>production</code>.</p>
+      <div class="flow-box"><svg class="flow-svg" id="flow-gitlab" role="img" aria-label="Diagrama de GitLab Flow con ramas por entorno"></svg></div>
+      <div class="two-col">
+        <div>
+          <h3 style="margin-top:0">Flujo</h3>
+          <ul class="clean">
+            <li>Las features llegan a <code>main</code> por PR/MR, como en GitHub Flow.</li>
+            <li>Se promueve a <code>pre-production</code> fusionando <code>main</code> en ella (despliegue a staging).</li>
+            <li>Tras validar, se fusiona a <code>production</code> (despliegue a producción).</li>
+            <li>Los arreglos urgentes se hacen en <code>main</code> primero y se promocionan igual: nunca al revés.</li>
+          </ul>
+          <p><span class="pill pill-good">Pros</span>Sabes exactamente qué versión hay en cada entorno.</p>
+          <p><span class="pill pill-bad">Contras</span>Más ramas que mantener y despliegue más lento que en GitHub Flow.</p>
+        </div>
+        <div>
+          <h3 style="margin-top:0">Comandos típicos</h3>
+<pre class="codeblock"><span class="c"># Promocionar main a staging</span>
+<span class="k">git switch pre-production</span>
+<span class="k">git merge main</span>
+<span class="k">git push</span>
+
+<span class="c"># Tras validar, a producción</span>
+<span class="k">git switch production</span>
+<span class="k">git merge pre-production</span>
+<span class="k">git push</span></pre>
+        </div>
+      </div>
+      <div class="callout info"><strong>¿Cuál elegir?</strong> Empieza por GitHub Flow. Si necesitas entornos controlados, pasa a GitLab Flow; si mantienes varias versiones publicadas, Git Flow; y si tu CI y tus tests son excelentes, evoluciona hacia Trunk-Based.</div>
+    </section>
   </div>
 
   <footer>
@@ -671,10 +1331,198 @@
     document.getElementById('noResults').style.display = anyVisible ? 'none' : 'block';
   }
 
+  // --- TAB 4: CONFLICT SIMULATOR ---
+  const CONFLICT_HEAD = '  return "Hola, mundo";';
+  const CONFLICT_INCOMING = '  return "Hello, world";';
+
+  function conflictLine(parent, text, cls) {
+    const s = document.createElement('span');
+    if (cls) s.className = cls;
+    s.textContent = text + '\n';
+    parent.appendChild(s);
+  }
+
+  function conflictPick(choice) {
+    const el = document.getElementById('conflict-file');
+    const log = document.getElementById('conflict-log');
+    el.innerHTML = '';
+    conflictLine(el, 'function saludar() {');
+    if (choice === 'reset') {
+      conflictLine(el, '<<<<<<< HEAD', 'conf-mark');
+      conflictLine(el, CONFLICT_HEAD, 'conf-ours');
+      conflictLine(el, '=======', 'conf-mark');
+      conflictLine(el, CONFLICT_INCOMING, 'conf-theirs');
+      conflictLine(el, '>>>>>>> feature/ingles', 'conf-mark');
+      log.textContent = '> CONFLICT (content): Merge conflict in saludo.js. Elige una resolución.';
+    } else {
+      if (choice === 'head' || choice === 'both') conflictLine(el, CONFLICT_HEAD, 'conf-ok');
+      if (choice === 'incoming') conflictLine(el, CONFLICT_INCOMING, 'conf-ok');
+      if (choice === 'both') conflictLine(el, CONFLICT_INCOMING, 'conf-ok');
+      const what = { head: 'tu versión (HEAD)', incoming: 'la versión entrante', both: 'ambas versiones (revisa que el código siga siendo válido: aquí habría dos return)' }[choice];
+      log.textContent = `> Marcadores eliminados, te quedaste con ${what}. Siguiente: git add saludo.js ➔ git merge --continue.`;
+    }
+    conflictLine(el, '}');
+  }
+
+  // --- TAB 6/7: STATIC FLOW DIAGRAMS ---
+  // spec: lanes [{name,color}] top→bottom; commits {id,lane,x,parents,tag?,label?,ghost?}
+  function drawFlow(svgId, spec) {
+    const svg = document.getElementById(svgId);
+    if (!svg) return;
+    const STEPX = 62, LEFT = spec.left || 120, TOP = 40, ROW = 54, R = 10;
+    const maxX = Math.max(...spec.commits.map(c => c.x));
+    const W = LEFT + maxX * STEPX + 50;
+    const H = TOP + (spec.lanes.length - 1) * ROW + 38;
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    svg.innerHTML = '';
+    const laneIdx = name => spec.lanes.findIndex(l => l.name === name);
+    const pos = c => ({ x: LEFT + c.x * STEPX, y: TOP + laneIdx(c.lane) * ROW });
+    const color = c => spec.lanes[laneIdx(c.lane)].color;
+    const byId = {};
+    spec.commits.forEach(c => { byId[c.id] = c; });
+
+    spec.lanes.forEach((l, i) => {
+      const y = TOP + i * ROW;
+      svg.appendChild(svgEl('line', { x1: LEFT - 20, y1: y, x2: W - 10, y2: y, stroke: '#334155', 'stroke-width': 1, 'stroke-dasharray': '3 5' }));
+      svg.appendChild(svgEl('text', { x: 8, y: y + 4, fill: l.color, 'font-size': '11px', 'font-weight': 'bold', 'font-family': 'ui-monospace, monospace' }, l.name));
+    });
+
+    spec.commits.forEach(c => {
+      c.parents.forEach((pid, i) => {
+        const p = byId[pid];
+        if (!p) return;
+        const a = pos(p), b = pos(c);
+        const stroke = i === 0 ? color(c) : color(p);
+        const attrs = { fill: 'none', stroke, 'stroke-width': 3, opacity: c.ghost ? 0.45 : 0.9, 'stroke-linecap': 'round' };
+        if (c.ghost) attrs['stroke-dasharray'] = '5 4';
+        if (a.y === b.y) {
+          svg.appendChild(svgEl('line', Object.assign({ x1: a.x, y1: a.y, x2: b.x, y2: b.y }, attrs)));
+        } else {
+          const mx = (a.x + b.x) / 2;
+          svg.appendChild(svgEl('path', Object.assign({ d: `M${a.x} ${a.y} C${mx} ${a.y} ${mx} ${b.y} ${b.x} ${b.y}` }, attrs)));
+        }
+      });
+    });
+
+    spec.commits.forEach(c => {
+      const p = pos(c);
+      svg.appendChild(svgEl('circle', {
+        cx: p.x, cy: p.y, r: R,
+        fill: c.ghost ? '#0f172a' : color(c), stroke: c.ghost ? color(c) : '#0f172a', 'stroke-width': c.ghost ? 2 : 3,
+        'stroke-dasharray': c.ghost ? '3 3' : 'none'
+      }));
+      if (c.tag) {
+        const w = c.tag.length * 6.4 + 12;
+        svg.appendChild(svgEl('rect', { x: p.x - w / 2, y: p.y - 34, width: w, height: 17, rx: 4, fill: '#facc15' }));
+        svg.appendChild(svgEl('text', { x: p.x, y: p.y - 22, 'text-anchor': 'middle', fill: '#0f172a', 'font-size': '10px', 'font-weight': 'bold' }, c.tag));
+      }
+      if (c.label) {
+        svg.appendChild(svgEl('text', { x: p.x, y: p.y + 26, 'text-anchor': 'middle', fill: '#94a3b8', 'font-size': '10px' }, c.label));
+      }
+    });
+  }
+
+  const FLOW_COLORS = { main: '#38bdf8', develop: '#4ade80', feature: '#c084fc', release: '#facc15', hotfix: '#f87171', staging: '#fb923c' };
+
+  function renderStrategies() {
+    drawFlow('flow-github', {
+      lanes: [{ name: 'main', color: FLOW_COLORS.main }, { name: 'feature/a', color: FLOW_COLORS.feature }, { name: 'fix/b', color: FLOW_COLORS.hotfix }],
+      commits: [
+        { id: 'M1', lane: 'main', x: 0, parents: [] },
+        { id: 'A1', lane: 'feature/a', x: 1, parents: ['M1'] },
+        { id: 'A2', lane: 'feature/a', x: 2, parents: ['A1'], label: 'PR #1' },
+        { id: 'B1', lane: 'fix/b', x: 3, parents: ['M1'] },
+        { id: 'M2', lane: 'main', x: 4, parents: ['M1', 'A2'], tag: 'deploy' },
+        { id: 'B2', lane: 'fix/b', x: 5, parents: ['B1'], label: 'PR #2' },
+        { id: 'M3', lane: 'main', x: 6, parents: ['M2', 'B2'], tag: 'deploy' }
+      ]
+    });
+
+    drawFlow('flow-gitflow', {
+      left: 100,
+      lanes: [
+        { name: 'main', color: FLOW_COLORS.main }, { name: 'hotfix', color: FLOW_COLORS.hotfix },
+        { name: 'release', color: FLOW_COLORS.release }, { name: 'develop', color: FLOW_COLORS.develop },
+        { name: 'feature', color: FLOW_COLORS.feature }
+      ],
+      commits: [
+        { id: 'M1', lane: 'main', x: 0, parents: [], tag: 'v1.0' },
+        { id: 'D1', lane: 'develop', x: 0.5, parents: ['M1'] },
+        { id: 'F1', lane: 'feature', x: 1.5, parents: ['D1'] },
+        { id: 'F2', lane: 'feature', x: 2.5, parents: ['F1'] },
+        { id: 'D2', lane: 'develop', x: 3.5, parents: ['D1', 'F2'] },
+        { id: 'R1', lane: 'release', x: 4.5, parents: ['D2'] },
+        { id: 'R2', lane: 'release', x: 5.5, parents: ['R1'], label: 'bugfix' },
+        { id: 'M2', lane: 'main', x: 6.5, parents: ['M1', 'R2'], tag: 'v1.1' },
+        { id: 'D3', lane: 'develop', x: 6.5, parents: ['D2', 'R2'] },
+        { id: 'H1', lane: 'hotfix', x: 8, parents: ['M2'] },
+        { id: 'M3', lane: 'main', x: 9, parents: ['M2', 'H1'], tag: 'v1.1.1' },
+        { id: 'D4', lane: 'develop', x: 9, parents: ['D3', 'H1'] }
+      ]
+    });
+
+    drawFlow('flow-trunk', {
+      lanes: [{ name: 'trunk (main)', color: FLOW_COLORS.main }, { name: 'rama corta', color: FLOW_COLORS.feature }, { name: 'release/1.x', color: FLOW_COLORS.release }],
+      left: 124,
+      commits: [
+        { id: 'T1', lane: 'trunk (main)', x: 0, parents: [] },
+        { id: 'T2', lane: 'trunk (main)', x: 1, parents: ['T1'] },
+        { id: 'S1', lane: 'rama corta', x: 2, parents: ['T2'], label: '< 1 día' },
+        { id: 'T3', lane: 'trunk (main)', x: 3, parents: ['T2', 'S1'] },
+        { id: 'T4', lane: 'trunk (main)', x: 4, parents: ['T3'] },
+        { id: 'S2', lane: 'rama corta', x: 5, parents: ['T4'] },
+        { id: 'T5', lane: 'trunk (main)', x: 6, parents: ['T4', 'S2'] },
+        { id: 'R1', lane: 'release/1.x', x: 6, parents: ['T4'], tag: 'v1.0' },
+        { id: 'T6', lane: 'trunk (main)', x: 7, parents: ['T5'], label: 'flags ON/OFF' },
+        { id: 'R2', lane: 'release/1.x', x: 8, parents: ['R1'], label: 'cherry-pick', tag: 'v1.0.1' }
+      ]
+    });
+
+    drawFlow('flow-gitlab', {
+      lanes: [{ name: 'main', color: FLOW_COLORS.main }, { name: 'pre-production', color: FLOW_COLORS.staging }, { name: 'production', color: FLOW_COLORS.develop }],
+      left: 130,
+      commits: [
+        { id: 'M1', lane: 'main', x: 0, parents: [] },
+        { id: 'M2', lane: 'main', x: 1, parents: ['M1'] },
+        { id: 'M3', lane: 'main', x: 2, parents: ['M2'] },
+        { id: 'P1', lane: 'pre-production', x: 3, parents: ['M3'], label: 'staging' },
+        { id: 'M4', lane: 'main', x: 4, parents: ['M3'] },
+        { id: 'R1', lane: 'production', x: 5, parents: ['P1'], tag: 'prod v1' },
+        { id: 'P2', lane: 'pre-production', x: 6, parents: ['P1', 'M4'], label: 'staging' },
+        { id: 'M5', lane: 'main', x: 6, parents: ['M4'] },
+        { id: 'R2', lane: 'production', x: 8, parents: ['R1', 'P2'], tag: 'prod v2' }
+      ]
+    });
+
+    const gh = (lanes, commits) => ({ left: 56, lanes, commits });
+    const L2 = [{ name: 'main', color: FLOW_COLORS.main }, { name: 'PR', color: FLOW_COLORS.feature }];
+    drawFlow('gh-merge', gh(L2, [
+      { id: 'M1', lane: 'main', x: 0, parents: [] },
+      { id: 'F1', lane: 'PR', x: 1, parents: ['M1'] },
+      { id: 'F2', lane: 'PR', x: 2, parents: ['F1'] },
+      { id: 'MM', lane: 'main', x: 3, parents: ['M1', 'F2'] }
+    ]));
+    drawFlow('gh-squash', gh(L2, [
+      { id: 'M1', lane: 'main', x: 0, parents: [] },
+      { id: 'F1', lane: 'PR', x: 1, parents: ['M1'], ghost: true },
+      { id: 'F2', lane: 'PR', x: 2, parents: ['F1'], ghost: true },
+      { id: 'S', lane: 'main', x: 3, parents: ['M1'], label: 'F1+F2 en 1' }
+    ]));
+    drawFlow('gh-rebase', gh(L2, [
+      { id: 'M1', lane: 'main', x: 0, parents: [] },
+      { id: 'F1', lane: 'PR', x: 1, parents: ['M1'], ghost: true },
+      { id: 'F2', lane: 'PR', x: 2, parents: ['F1'], ghost: true },
+      { id: 'F1n', lane: 'main', x: 3, parents: ['M1'], label: "F1′" },
+      { id: 'F2n', lane: 'main', x: 4, parents: ['F1n'], label: "F2′" }
+    ]));
+  }
+
   // Initial Render
   graphReset();
   graphLog('Estado actual: En la rama "main". Haz un commit o crea una rama.');
   renderPipe();
+  conflictPick('reset');
+  renderStrategies();
   window.addEventListener('resize', () => {
     if (document.getElementById('tab-graph').classList.contains('active')) renderGraph();
   });
